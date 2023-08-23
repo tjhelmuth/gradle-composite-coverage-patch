@@ -1,0 +1,39 @@
+
+
+List<String> extractCompositeTasks(List<String> taskNames){
+  def rootGradle = gradle
+  def compositePathPrefix = []
+
+  while (rootGradle.getParent() != null) {
+    compositePathPrefix.add(0, gradle.rootProject.name)
+    rootGradle = rootGradle.getParent()
+  }
+
+  println("Start Tasks Names: ${taskNames}")
+  if (!compositePathPrefix.isEmpty()) {
+    def compositePathPrefixString = ":" + compositePathPrefix.join(":")
+    println("composite path prefix string: ${compositePathPrefixString}")
+    taskNames = taskNames.collect {
+      if (it.startsWith(compositePathPrefixString)) {
+        return it.substring(compositePathPrefixString.length())
+      } else {
+        return it
+      }
+    }
+  }
+
+  println("Start Tasks Names (After Composites): ${taskNames}")
+  return taskNames
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+  def testTasks = extractCompositeTasks(TASK_NAMES)
+
+  taskGraph.allTasks.each { Task task ->
+    if (task instanceof JavaForkOptions && (testTasks.contains(task.name) || testTasks.contains(task.path))) {
+      def jvmArgs = task.jvmArgs.findAll{!it?.startsWith('-agentlib:jdwp') && !it?.startsWith('-Xrunjdwp')}
+      jvmArgs << JVM_PARAMS
+      task.jvmArgs = jvmArgs
+    }
+  }
+}

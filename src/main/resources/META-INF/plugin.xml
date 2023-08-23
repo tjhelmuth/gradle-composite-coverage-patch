@@ -1,0 +1,33 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.tjhelmuth.gradle-composite-coverage-patch</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>Gradle Composite Coverage Patch</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="tjhelmuth@gmail.com">Tyler Helmuth</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description><![CDATA[
+    This is a fix <a href="https://youtrack.jetbrains.com/issue/IDEA-283140/Unable-to-run-the-code-coverage-in-Gradle-project-when-using-includeBuild-to-include-a-sub-project">IDEA-283140</a>.
+
+    It is a workaround for the issue where the code coverage tooling in IntelliJ does not work with Gradle composite builds. This plugin makes sure that the coverage agent is correctly initialized
+    in the jvmArgs for the task we are trying to run, even if that task is in an included build.
+  ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.gradle</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="org.jetbrains.plugins.gradle">
+        <projectResolve implementation="com.tjhelmuth.gradlecompositecoveragepatch.CompositeBuildCoverageResolverPatch"/>
+    </extensions>
+</idea-plugin>
